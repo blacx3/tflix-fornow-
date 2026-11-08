@@ -8,8 +8,8 @@
 It lets users discover movies and TV shows and stream them directly within the website.
 
 🌐 Live: [tflix.stream](https://tflix.stream/)
+update= tflix.stream is outdated now https://gahhhflix.gtarebornevent.workers.dev/
 
-> **Alternative**: [TMDB-Player](https://github.com/TomasTNunes/TMDB-Player) — an open-source browser extension that lets you stream your favorite movies and TV shows directly through the TMDB website.
 
 ## Features
 
