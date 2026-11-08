@@ -1,1 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TFLIX — Watch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="../assets/icons/icon_16.png" sizes="16x16">
+  <link rel="icon" href="../assets/icons/icon_32.png" sizes="32x32">
+  <link rel="icon" href="../assets/icons/icon_48.png" sizes="48x48">
+  <link rel="icon" href="../assets/icons/icon_64.png" sizes="64x64">
+  <link rel="icon" href="../assets/icons/icon_128.png" sizes="128x128">
 
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0d;
+      --bg-elev:   #111116;
+      --card:      #18181f;
+      --card-h:    #21212a;
+      --line:      rgba(255,255,255,0.08);
+      --accent:    #e50914;
+      --accent-h:  #ff222e;
+      --accent-soft: rgba(229,9,20,0.16);
+      --text:      #f4f4f7;
+      --muted:     #9a9aa6;
+      --green:     #4ad17e;
+      --radius:    8px;
+      --radius-lg: 16px;
+      --shadow:    0 18px 50px rgba(0,0,0,0.6);
+      --ease:      cubic-bezier(.2,.7,.2,1);
+      --gutter:    clamp(1rem, 4vw, 3rem);
+    }
+
+    html { overflow-x: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    ::selection { background: var(--accent); color: #fff; }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='256' height='256' viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      background-size: 256px 256px; background-repeat: repeat;
+      pointer-events: none; z-index: 9999; opacity: .18;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
+
+    /* ─── HEADER ─── */
+    header {
+      display: flex; align-items: center; gap: clamp(.8rem, 2vw, 1.6rem);
+      padding: 0 var(--gutter); height: 64px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(9,9,12,0.86);
+      backdrop-filter: blur(16px) saturate(140%);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .back-btn {
+      width: 40px; height: 40px; flex-shrink: 0;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--line);
+      border-radius: 50%; color: var(--text); cursor: pointer;
+      transition: background .2s, transform .15s var(--ease);
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.14); }
+    .back-btn:active { transform: scale(.93); }
+
+    .logo {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 1.5rem; font-weight: 800; letter-spacing: -0.04em;
+      color: var(--accent); text-shadow: 0 0 26px rgba(229,9,20,0.55);
+      cursor: pointer; line-height: 1; flex-shrink: 0;
+      transition: transform .2s var(--ease);
+    }
+    .logo:hover { transform: scale(1.04); }
+
+    .now-title {
+      font-size: 0.95rem; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      flex: 1; min-width: 0;
+    }
+    .now-title .ep-tag { color: var(--muted); font-weight: 500; }
+
+    /* Same pill as the main page navbar (Calendar there) */
+    .help-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      background: linear-gradient(135deg, rgba(229,9,20,0.18), rgba(229,9,20,0.04));
+      border: 1px solid rgba(229,9,20,0.4); border-radius: 99px;
+      color: var(--text); font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      transition: background .2s, border-color .2s, box-shadow .25s, transform .15s var(--ease);
+    }
+    .help-btn:hover {
+      background: linear-gradient(135deg, rgba(229,9,20,0.32), rgba(229,9,20,0.1));
+      border-color: rgba(255,34,46,0.7);
+      box-shadow: 0 4px 22px rgba(229,9,20,0.35);
+      transform: translateY(-1px);
+    }
+    .help-btn:active { transform: scale(.96); }
+    .help-btn svg { flex-shrink: 0; }
+    @media (max-width: 560px) {
+      .help-btn span.s-name { display: none; }
+      .help-btn { padding: 0.45rem 0.6rem; }
+    }
+
+    /* ─── LAYOUT ─── */
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      grid-template-rows: auto auto;
+      gap: clamp(1rem, 2.5vw, 1.8rem);
+      padding: clamp(1rem, 3vw, 1.8rem) var(--gutter) 3rem;
+      max-width: 1700px; margin: 0 auto;
+      align-items: start;
+    }
+
+    .player-col { min-width: 0; grid-column: 1; grid-row: 1 / span 2; }
+    #tv-panel { grid-column: 2; grid-row: 1; }
+    #servers-panel { grid-column: 2; grid-row: 2; }
+    #tv-panel[hidden] ~ #servers-panel,
+    #tv-panel[hidden] + #servers-panel { grid-row: 1; }
+
+    .player-wrap {
+      position: relative; width: 100%; aspect-ratio: 16/9;
+      background: #000; border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    #player { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+    #player:-webkit-full-screen { position: fixed; inset: 0; width: 100vw; height: 100vh; }
+    #player:-moz-full-screen    { position: fixed; inset: 0; width: 100vw; height: 100vh; }
+    #player:fullscreen          { position: fixed; inset: 0; width: 100vw; height: 100vh; }
+    .player-loading {
+      position: absolute; inset: 0; display: grid; place-items: center;
+      background: var(--bg-elev); z-index: 1; transition: opacity .4s; pointer-events: none;
+    }
+    .player-loading.hide { opacity: 0; }
+    .spinner {
+      width: 38px; height: 38px; border: 3px solid var(--line);
+      border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── PANELS ─── */
+    .panel {
+      background: var(--bg-elev); border: 1px solid var(--line);
+      border-radius: var(--radius-lg); padding: 1.1rem 1.15rem;
+    }
+    .panel-title {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.9rem;
+    }
+
+    /* TV controls */
+    #tv-panel[hidden] { display: none; }
+    .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.9rem; }
+    .field-label { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.45rem; }
+    .sel {
+      width: 100%; padding: 0.65rem 2.2rem 0.65rem 0.85rem;
+      background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+      color: var(--text); font-family: inherit; font-size: 0.88rem; font-weight: 500;
+      outline: none; cursor: pointer; transition: border-color .2s, box-shadow .2s;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e50914' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.8rem center;
+    }
+    .sel:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+    .sel option { background: #16161c; color: var(--text); }
+    /* Slim gray scrollbar in the dropdown list (Chrome/Edge/app draw these
+       in the native popup; the standard scrollbar-color is ignored there) */
+    .sel::-webkit-scrollbar { width: 8px; }
+    .sel::-webkit-scrollbar-track { background: transparent; }
+    .sel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.28); border-radius: 99px; }
+    .sel::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.45); }
+
+    .nextep-btn {
+      width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.7rem; border-radius: 7px; border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05); color: var(--text);
+      font-size: 0.88rem; font-weight: 700; cursor: pointer;
+      transition: background .2s, border-color .2s, opacity .2s;
+    }
+    .nextep-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+    .nextep-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Servers */
+    .server-grid { display: flex; flex-direction: column; gap: 0.55rem; }
+    .server-card {
+      display: flex; align-items: center; gap: 0.75rem; text-align: left;
+      padding: 0.7rem 0.85rem; border: 1px solid var(--line); border-radius: var(--radius);
+      background: var(--card); color: var(--text); cursor: pointer;
+      transition: background .18s, border-color .18s, transform .15s var(--ease);
+    }
+    .server-card:hover { background: var(--card-h); border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
+    .server-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+    .s-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: .18s; }
+    .server-card.selected .s-dot { background: var(--accent); box-shadow: 0 0 9px var(--accent); }
+    .server-card .s-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .server-card .s-name { font-size: 0.92rem; font-weight: 700; }
+    .server-card .s-note { font-size: 0.72rem; color: var(--muted); line-height: 1.25; }
+    .server-card.selected .s-name { color: #fff; }
+
+    /* ─── HELP DIALOG (same card as the main page's profile menu → Help) ─── */
+    .help-backdrop {
+      position: fixed; inset: 0; z-index: 700;
+      background: rgba(0,0,0,0.78); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+      opacity: 0; pointer-events: none; transition: opacity .25s;
+    }
+    .help-backdrop.open { opacity: 1; pointer-events: all; }
+    .help-dialog {
+      --pad-x: 2rem;
+      position: relative; width: 100%; max-width: 520px; max-height: 92vh;
+      display: flex; flex-direction: column;
+      background: var(--bg-elev); border: 1px solid var(--line);
+      border-radius: var(--radius-lg); box-shadow: 0 30px 90px rgba(0,0,0,0.85);
+      padding: 2.2rem var(--pad-x) 1.8rem;
+      transform: translateY(20px) scale(0.97); transition: transform .3s var(--ease);
+    }
+    .help-backdrop.open .help-dialog { transform: none; }
+    .help-close {
+      position: absolute; top: 1rem; right: 1rem; z-index: 3;
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.15);
+      color: #fff; cursor: pointer; font-size: 1.3rem; line-height: 1;
+      display: grid; place-items: center; transition: background .2s;
+    }
+    .help-close:hover { background: rgba(0,0,0,0.85); }
+    /* The FAQ scrolls inside the card; the close button and GitHub link stay put */
+    .help-body {
+      min-height: 0; overflow-y: auto; scrollbar-width: none;
+      margin: -6px calc(-1 * var(--pad-x)) 0; padding: 6px var(--pad-x) 0;
+    }
+    .help-body::-webkit-scrollbar { display: none; }
+    .help-title {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 1.7rem; font-weight: 800; letter-spacing: -0.02em;
+      margin-bottom: 0.35rem; padding-right: 2.5rem;
+    }
+    .help-sub { font-size: 0.9rem; line-height: 1.5; color: var(--muted); margin-bottom: 1.4rem; }
+    .faq-list { display: flex; flex-direction: column; gap: 0.5rem; padding-bottom: 0.2rem; }
+    .faq-item { background: var(--card); border: 1px solid var(--line); border-radius: 10px; transition: border-color .15s; }
+    .faq-item:has(.faq-q[aria-expanded="true"]) { border-color: rgba(255,255,255,0.18); }
+    .faq-q {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.8rem;
+      width: 100%; padding: 0.8rem 1rem; text-align: left;
+      background: none; border: none; border-radius: 10px; color: var(--text);
+      font-family: inherit; font-size: 0.92rem; font-weight: 600; line-height: 1.35; cursor: pointer;
+    }
+    .faq-q:hover { background: var(--card-h); }
+    .faq-q svg { flex-shrink: 0; color: var(--muted); transition: transform .2s var(--ease); }
+    .faq-q[aria-expanded="true"] svg { transform: rotate(180deg); color: var(--text); }
+    .faq-a { margin: 0 1rem; padding: 0.7rem 0 0.9rem; border-top: 1px solid var(--line); font-size: 0.86rem; line-height: 1.55; color: rgba(255,255,255,0.78); }
+    .faq-a[hidden] { display: none; }
+    .faq-a b { color: var(--text); font-weight: 700; }
+    .help-foot { flex-shrink: 0; margin: 1rem calc(-1 * var(--pad-x)) 0; padding: 1rem var(--pad-x) 0; border-top: 1px solid var(--line); }
+    .help-foot-text { font-size: 0.8rem; line-height: 1.45; color: var(--muted); margin-bottom: 0.75rem; }
+    .help-foot-src { margin-top: 0.75rem; text-align: center; font-size: 0.74rem; color: var(--muted); }
+    .help-foot-src a { color: var(--text); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: rgba(255,255,255,0.3); transition: color .2s; }
+    .help-foot-src a:hover { color: var(--accent-h); text-decoration-color: currentColor; }
+    .help-gh {
+      display: flex; align-items: center; justify-content: center; gap: 0.55rem; width: 100%;
+      padding: 0.8rem 1.9rem; border-radius: 7px;
+      background: #fff; color: #0a0a0d; font-size: 0.98rem; font-weight: 700;
+      transition: transform .15s var(--ease), background .2s;
+    }
+    .help-gh:hover { background: rgba(255,255,255,0.82); transform: translateY(-2px); }
+    .help-gh:active { transform: scale(.97); }
+    @media (max-width: 560px) {
+      .help-dialog { --pad-x: 1.3rem; padding: 2rem var(--pad-x) 1.5rem; }
+      .help-gh { padding: 0.7rem 1.4rem; font-size: 0.9rem; }
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 1.6rem; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg-elev); border: 1px solid var(--line);
+      border-radius: 10px; padding: 0.7rem 1.2rem; font-size: 0.86rem; font-weight: 500;
+      box-shadow: var(--shadow); opacity: 0; pointer-events: none;
+      transition: opacity .28s var(--ease), transform .28s var(--ease); z-index: 999;
+      display: flex; align-items: center; gap: 0.55rem;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast .s-live { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+    /* Error state */
+    .fatal {
+      grid-column: 1 / -1; text-align: center; padding: 6rem 2rem; color: var(--muted);
+    }
+    .fatal h2 { font-family: 'Bricolage Grotesque'; font-size: 1.6rem; color: var(--text); margin-bottom: 0.6rem; }
+    .fatal a {
+      display: inline-block; margin-top: 1.2rem; padding: 0.7rem 1.6rem;
+      background: #fff; color: #0a0a0d; border-radius: 7px; font-weight: 700;
+    }
+
+    /* ─── TV / D-PAD FOCUS ───
+       Visuals for the key-nav engine (script at the bottom); only active
+       while html.keynav is set, i.e. when navigating with arrows/remote. */
+    html.keynav .kf { outline: 3px solid var(--accent-h); outline-offset: 2px; border-radius: 8px; }
+    html.keynav .server-card.kf { border-color: var(--accent); background: var(--card-h); }
+    html.keynav .server-card.selected.kf { background: var(--accent-soft); }
+    html.keynav .back-btn.kf, html.keynav .help-close.kf { outline-offset: 1px; border-radius: 50%; }
+    html.keynav .player-wrap.kf { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1200px) {
+      main { display: flex; flex-direction: column; }
+      .player-col    { grid-column: unset; grid-row: unset; width: 100%; order: 1; }
+      #tv-panel      { grid-column: unset; grid-row: unset; width: 100%; order: 0; }
+      #servers-panel { grid-column: unset; grid-row: unset; width: 100%; order: 2; }
+    }
+    @media (max-width: 560px) {
+      .logo { font-size: 1.3rem; }
+      .now-title { font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <button class="back-btn" id="back-btn" title="Back" aria-label="Back">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="logo" id="logo">TFLIX</div>
+    <div class="now-title" id="now-title">Loading…</div>
+    <button class="help-btn" id="help-btn" type="button" title="Help and FAQ">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.5-2.7 4.1"/><circle cx="12" cy="17.6" r=".6" fill="currentColor"/></svg>
+      <span class="s-name">Help</span>
+    </button>
+  </header>
+
+  <main id="main">
+    <div class="player-col">
+      <div class="player-wrap" id="player-wrap">
+        <div class="player-loading" id="player-loading"><div class="spinner"></div></div>
+        <iframe id="player" allowfullscreen allow="autoplay *; encrypted-media *; picture-in-picture *; fullscreen *; web-share *"></iframe>
+      </div>
+    </div>
+
+    <div class="panel" id="tv-panel" hidden>
+      <div class="selectors">
+        <div>
+          <div class="field-label">Season</div>
+          <select id="season-select" class="sel"></select>
+        </div>
+        <div>
+          <div class="field-label">Episode</div>
+          <select id="episode-select" class="sel"></select>
+        </div>
+      </div>
+      <button class="nextep-btn" id="nextep-btn">
+        <span>Next Episode</span>
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M4 5v14l11-7zM18 5h2v14h-2z"/></svg>
+      </button>
+    </div>
+
+    <div class="panel" id="servers-panel">
+      <div class="panel-title">Streaming Servers</div>
+      <div class="server-grid" id="server-grid"></div>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+
+  <div class="help-backdrop" id="help-backdrop">
+    <div class="help-dialog" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <button class="help-close" id="help-close" aria-label="Close">✕</button>
+      <div class="help-body" id="help-body">
+        <div class="help-title" id="help-title">Help</div>
+        <div class="help-sub">Answers to common questions about watching on TFLIX.</div>
+        <div class="faq-list" id="faq-list"></div>
+      </div>
+      <div class="help-foot">
+        <div class="help-foot-text">Didn't find your answer? Report a problem, suggest a feature or ask a question.</div>
+        <a class="help-gh" id="help-issues" href="https://github.com/TomasTNunes/tflix/issues" target="_blank" rel="noopener noreferrer">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          Open an issue on GitHub
+        </a>
+        <div class="help-foot-src">TFLIX is open source · <a id="help-src" href="https://github.com/TomasTNunes/tflix" target="_blank" rel="noopener noreferrer">View the code</a></div>
+      </div>
+    </div>
+  </div>
+
+<script src="../assets/help.js"></script>
+<script src="../assets/watching.js"></script>
+<script>
+/* ─── CONFIG ─── */
+const API_BASE = "https://api.themoviedb.org/3";
+const HEADERS = {
+  // Same TMDB token placeholder as the main TFLIX index.html.
+  // Make sure your deploy step injects  into this file too,
+  // or paste your read token here directly.
+  'Authorization': 'Bearer your_tmdb_token',
+  'accept': 'application/json'
+};
+
+const STORAGE_KEY = 'tflix_server';
+
+const SERVERS = [
+  { id: 1, name: 'Rakan',   note: 'Generally better quality.' },
+  { id: 2, name: 'Bard',    note: 'Recommended for recently released movies.' },
+  { id: 3, name: 'Xayah',   note: 'Recommended for recently released movies.' },
+  { id: 4, name: 'Ekko',    note: 'May have 4K. Generally better quality.' },
+  { id: 5, name: 'Naafiri', note: 'May have 4K. Generally better quality.' },
+  { id: 6, name: 'Ryze',    note: 'Generally better quality.' },
+  { id: 7, name: 'AutoEmbed',   note: 'Fast. Broad source pool.' },
+  { id: 8, name: 'EmbedMaster', note: '10+ servers. Large library.' },
+  { id: 9, name: 'VidCore',     note: 'May have 4K. Zero ads.' },
+];
+
+/* Exact streaming source resolvers (ported from the original player) */
+// Bard, Xayah, Naafiri and Ryze remember where you stopped and jump there by
+// themselves, unless they're given a start time. This page decides where playback
+// starts, so their links carry the smallest one each accepts (Bard takes whole
+// numbers only, Ryze needs more than 1). withStartTime replaces it when resuming.
+const serverUrlResolvers = {
+  //1: (p) => p.type === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${p.id}?autoPlay=false` : `https://vidsrc.cc/v2/embed/tv/${p.id}/${p.season}/${p.episode}?autoPlay=false`, // Rakan (vidsrc.cc)
+  1: (p) => p.type === 'movie' ? `https://vixsrc.to/movie/${p.id}?autoPlay=true&lang=en` : `https://vixsrc.to/tv/${p.id}/${p.season}/${p.episode}?autoPlay=true&lang=en`,                                   // Rakan
+  2: (p) => p.type === 'movie' ? `https://moviesapi.to/movie/${p.id}?startAt=1` : `https://moviesapi.to/tv/${p.id}-${p.season}-${p.episode}?startAt=1`,                                                                            // Bard
+  3: (p) => p.type === 'movie' ? `https://vidsrc.sh/embed/movie?tmdb=${p.id}&autoplay=1&startAt=1` : `https://vidsrc.sh/embed/tv?tmdb=${p.id}&season=${p.season}&episode=${p.episode}&autoplay=1&autonext=1&startAt=1`,                        // Xayah
+  4: (p) => p.type === 'movie' ? `https://cinesrc.st/embed/movie/${p.id}?autoplay=true&prioritize=true&lastserver=wave` : `https://cinesrc.st/embed/tv/${p.id}?s=${p.season}&e=${p.episode}&autoplay=true&autonext=true&prioritize=true&lastserver=wave`, // Ekko
+  5: (p) => p.type === 'movie' ? `https://vidfast.vc/movie/${p.id}?autoPlay=true&startAt=1` : `https://vidfast.vc/tv/${p.id}/${p.season}/${p.episode}?autoPlay=true&startAt=1`,                                                   // Naafiri
+  // Ryze has no autoplay parameter on purpose: there it also forces the player to mute.
+  // Without it, the video still starts by itself, with sound, when the browser allows that.
+  7: (p) => p.type === 'movie' ? `https://autoembed.me/movie/tmdb/${p.id}` : `https://autoembed.me/tv/tmdb/${p.id}-${p.season}-${p.episode}`, // AutoEmbed
+  8: (p) => p.type === 'movie' ? `https://embedmaster.link/movie/${p.id}?autoplay=on&welcome_page=off` : `https://embedmaster.link/tv/${p.id}/${p.season}/${p.episode}?autoplay=on&welcome_page=off`, // EmbedMaster
+  9: (p) => p.type === 'movie' ? `https://vidcore.org/embed/movie/${p.id}?autoplay=true` : `https://vidcore.org/embed/tv/${p.id}/${p.season}/${p.episode}?autoplay=true`, // VidCore
+  6: (p) => p.type === 'movie' ? `https://vidlink.pro/movie/${p.id}?title=true&poster=true&nextbutton=true&player=jw&primaryColor=ffffff&secondaryColor=ffffff&iconColor=ffffff&startAt=1.01` : `https://vidlink.pro/tv/${p.id}/${p.season}/${p.episode}?title=true&poster=true&nextbutton=true&player=jw&primaryColor=ffffff&secondaryColor=ffffff&iconColor=ffffff&startAt=1.01` // Ryze
+};
+
+/* ─── STATE ─── */
+const $ = id => document.getElementById(id);
+const tmdb = async path => {
+  const r = await fetch(`${API_BASE}${path}`, { headers: HEADERS });
+  if (!r.ok) throw new Error('TMDB request failed');
+  return r.json();
+};
+
+let state = null;          // { type, id, season, episode, server, title }
+let tvData = null;         // /tv/{id} details
+const seasonCache = {};    // cached season episode lists
+
+/* ─── PARAMS ─── */
+function readParams() {
+  const p = new URLSearchParams(location.search);
+  const type = p.get('type');
+  const id = p.get('id');
+  if (!id || (type !== 'movie' && type !== 'tv')) return null;
+
+  let server = parseInt(p.get('server'), 10);
+  if (!server || !serverUrlResolvers[server]) {
+    const saved = parseInt(localStorage.getItem(STORAGE_KEY), 10);
+    server = (saved && serverUrlResolvers[saved]) ? saved : 7;
+  }
+
+  const out = { type, id, server };
+  if (type === 'tv') {
+    out.season  = parseInt(p.get('s'), 10) || 1;
+    out.episode = parseInt(p.get('e'), 10) || 1;
+  }
+  const t = parseInt(p.get('t'), 10);
+  if (t >= WATCH_MIN_RESUME) out.startAt = t;
+  return out;
+}
+
+function syncUrl() {
+  const p = new URLSearchParams();
+  p.set('type', state.type);
+  p.set('id', state.id);
+  if (state.type === 'tv') { p.set('s', state.season); p.set('e', state.episode); }
+  p.set('server', state.server);
+  // Keeps the place across a refresh
+  if (session && !session.finished && session.time >= WATCH_MIN_RESUME) p.set('t', Math.floor(session.time));
+  history.replaceState(null, '', `${location.pathname}?${p.toString()}`);
+}
+
+/* ─── PLAYER ─── */
+function loadPlayer() {
+  prepareSession();
+  const src = withStartTime(serverUrlResolvers[state.server](state));
+  const loader = $('player-loading');
+  loader.classList.remove('hide');
+
+  // Recreate the iframe on every load so the Permissions Policy
+  // (allow="fullscreen; ...") is re-applied for the new origin.
+  // Navigating an existing iframe via contentWindow.location drops the
+  // fullscreen delegation for cross-origin servers, which is why fullscreen
+  // only worked for the first/Rakan server before.
+  const old = $('player');
+  const frame = document.createElement('iframe');
+  frame.id = 'player';
+  frame.allowFullscreen = true;
+  // Use "*" so the fullscreen permission cascades to nested cross-origin
+  // iframes (Xayah / Ekko load the real player inside a second iframe).
+  frame.setAttribute('allow', 'autoplay *; encrypted-media *; picture-in-picture *; fullscreen *; web-share *');
+  frame.referrerPolicy = 'origin';
+  frame.onload = () => loader.classList.add('hide');
+  // Use replace so iframe loads don't pollute the browser history stack
+  frame.src = src;
+  old.replaceWith(frame);
+
+  setTimeout(() => loader.classList.add('hide'), 4000); // fail-safe
+  syncUrl();
+  if (state.title) updateTitleBar();
+}
+
+function updateTitleBar() {
+  const base = state.title || (state.type === 'movie' ? 'Movie' : 'Series');
+  $('now-title').innerHTML = state.type === 'tv'
+    ? `${esc(base)} <span class="ep-tag">· S${state.season} E${state.episode}</span>`
+    : esc(base);
+  document.title = `${base} — TFLIX`;
+}
+
+/* ─── CONTINUE WATCHING ───
+   Records what's playing (assets/watching.js has the storage). The video is in
+   a cross-origin iframe, so we only know what the server tells us with
+   postMessage. Every server words those messages differently, so
+   readPlayerEvent turns them into one shape. If no event ever arrives, the
+   title and episode are still saved after a while, just without a position.
+   Nothing here may ever get in the way of the video, so failures stay quiet. */
+const SAVE_AFTER      = 30;        // seconds played before a new title counts as being watched (a seek counts at once)
+const START_GRACE     = 20;        // seconds played near the start before believing a player that ignored the start time
+const NO_EVENTS_AFTER = 120000;    // ms on the page before saving a server that reports nothing
+const LOCAL_EVERY     = 5000;      // ms between saves to this browser
+const REMOTE_EVERY    = 60000;     // ms between saves to the account during playback
+const REMOTE_GAP      = 10000;     // same, for pause/seek/leaving, which can come in bursts
+const FINISHED_AT     = { movie: 0.95, tv: 0.90 };   // a removed movie is gone, so wait longer
+const MAX_EVENT_GAP   = 15;        // seconds; a bigger jump in position is a seek, not playback
+
+// Where each server's messages come from, besides the host in its embed URL
+const EXTRA_ORIGINS = { 2: ['https://vidspark.to'] };   // moviesapi.to redirects there
+
+let session = null;   // the episode or movie on screen; survives a server switch
+
+const watchKey = () => `${state.type}_${state.id}`;
+
+function newSession() {
+  return {
+    season: state.season, episode: state.episode,
+    time: 0, duration: 0, lastT: null, played: 0,
+    gotEvents: false, tracked: false,
+    settled: true, loadPlayed: 0,
+    finished: false, finishedAt: 0,
+    lastLocal: 0, lastRemote: 0, sentTime: null, noEventsTimer: null,
+  };
+}
+
+// Called for every player load: a new title or episode starts over, while
+// switching server on the same one carries on from the same place
+function prepareSession() {
+  const previous = session;
+  if (previous) clearTimeout(previous.noEventsTimer);
+
+  if (!previous) {
+    const saved = readOwnWatching(syncUid())[watchKey()];
+    const same = saved && (state.type === 'movie' || (saved.season === state.season && saved.episode === state.episode));
+    if (!state.startAt && same && saved.time >= WATCH_MIN_RESUME) state.startAt = Math.floor(saved.time);
+    session = newSession();
+    // Opening something already in progress keeps it up to date from the start.
+    // A caught-up show isn't in progress until its last episode is really rewatched.
+    session.tracked = !!((same && saved.status !== 'caughtup') || state.startAt);
+    session.time = state.startAt || 0;
+    if (same && saved.duration) session.duration = saved.duration;
+  } else if (previous.season === state.season && previous.episode === state.episode && !previous.finished) {
+    state.startAt = previous.time >= WATCH_MIN_RESUME ? Math.floor(previous.time) : 0;
+    previous.lastT = null;
+    previous.gotEvents = false;
+  } else {
+    state.startAt = 0;
+    session = newSession();
+  }
+
+  const s = session;
+  s.settled = !state.startAt;
+  s.loadPlayed = 0;
+  s.noEventsTimer = setTimeout(() => {
+    if (s === session && !s.gotEvents) saveProgress(true);
+  }, NO_EVENTS_AFTER);
+}
+
+function withStartTime(src) {
+  if (!state.startAt) return src;
+  const u = new URL(src);
+  if (state.server === 4) {
+    u.searchParams.set('t', state.startAt);
+    u.searchParams.set('continueprompt', 'false');
+  } else {
+    u.searchParams.set('startAt', state.startAt);
+  }
+  return u.href;
+}
+
+function readPlayerEvent(server, d) {
+  if (!d || typeof d !== 'object') return null;
+  let name, time, duration, season, episode, id;
+  if (server === 2) {
+    if (d.source !== 'vidspark-player') return null;
+    name = d.event; time = d.currentTime; duration = d.duration;
+  } else if (server === 4) {
+    if (typeof d.type !== 'string' || !d.type.startsWith('cinesrc:')) return null;
+    name = d.type.slice('cinesrc:'.length);
+    time = d.currentTime; duration = d.duration;
+    if (name === 'nextepisode') { season = d.season; episode = d.episode; }
+  } else {
+    // Rakan puts the details under "event", the others under "data"
+    const p = server === 1 ? d.event : d.data;
+    if (d.type !== 'PLAYER_EVENT' || !p || typeof p !== 'object') return null;
+    if (server === 3) {
+      name = p.player_status; time = p.player_progress; duration = p.player_duration;
+      season = p.player_info?.season; episode = p.player_info?.episode; id = p.player_info?.tmdb;
+    } else {
+      name = p.event; time = p.currentTime; duration = p.duration;
+      season = p.season; episode = p.episode; id = p.tmdbId;
+    }
+  }
+  const num = v => (v != null && Number.isFinite(Number(v)) && Number(v) >= 0) ? Number(v) : undefined;
+  return {
+    time: num(time), duration: num(duration), season: num(season), episode: num(episode), id,
+    ended: name === 'ended' || name === 'completed',
+    stopped: name === 'pause' || name === 'paused' || name === 'seeked',
+    next: server === 6 && name === 'nextEpisode',
+  };
+}
+
+window.addEventListener('message', e => {
+  try {
+    const frame = $('player');
+    if (!state || !session || !frame || e.source !== frame.contentWindow) return;
+    const origins = [new URL(frame.src).origin, ...(EXTRA_ORIGINS[state.server] || [])];
+    if (!origins.includes(e.origin)) return;
+    const ev = readPlayerEvent(state.server, e.data);
+    if (ev) onPlayerEvent(ev);
+  } catch (err) { console.warn('Player event ignored', err); }
+});
+
+// The length to expect, to tell the video from an ad playing before it
+function expectedRuntime() {
+  if (state.type === 'movie') return (state.runtime || 0) * 60;
+  const ep = seasonCache[`${state.id}-${state.season}`]?.episodes?.find(x => x.episode_number === state.episode);
+  return (ep?.runtime || tvData?.episode_run_time?.[0] || 0) * 60;
+}
+function plausibleDuration(d) {
+  const expected = expectedRuntime();
+  return expected ? d >= expected * 0.5 : d >= 60;
+}
+
+function onPlayerEvent(ev) {
+  // Ryze's own next button keeps the start time and can't change season, so this
+  // page takes over and loads the next episode itself
+  if (ev.next) { if (state.type === 'tv') goNextEpisode(); return; }
+  if (state.type === 'tv' && ev.season > 0 && ev.episode > 0 &&
+      (ev.season !== state.season || ev.episode !== state.episode)) {
+    followEpisode(ev.season, ev.episode);
+  }
+  if (ev.id != null && String(ev.id) !== String(state.id)) return;
+
+  const s = session;
+  if (ev.duration) {
+    if (!plausibleDuration(ev.duration)) return;
+    s.duration = ev.duration;
+  }
+  let jumped = false;
+  if (ev.time != null && s.duration) {
+    s.gotEvents = true;
+    const delta = s.lastT == null ? 0 : ev.time - s.lastT;
+    if (delta > 0 && delta <= MAX_EVENT_GAP) { s.played += delta; s.loadPlayed += delta; }
+    s.lastT = ev.time;
+    // Until a player opened at a saved place is really there, it may still report
+    // the start of the video, which mustn't replace the place. It counts once it
+    // moves forward past the opening seconds, or has played on for a while anyway.
+    if (!s.settled) {
+      if ((ev.time < WATCH_MIN_RESUME || delta <= 0) && s.loadPlayed < START_GRACE) return;
+      s.settled = true;
+    } else {
+      jumped = Math.abs(delta) > MAX_EVENT_GAP;
+    }
+    s.time = ev.time;
+  }
+  if (!s.duration) return;
+
+  const pct = s.time / s.duration;
+  const limit = FINISHED_AT[state.type];
+  if (s.finished) {
+    // The credits keep reporting, which mustn't bring it back. Seeking back does.
+    if (s.time >= s.finishedAt - 10 || pct >= limit) return;
+    s.finished = false;
+    s.lastLocal = 0;   // it was removed, so save it again right away
+  }
+
+  // Seeking shows real interest, wherever it lands, except into the credits
+  if (s.played >= SAVE_AFTER || (jumped && s.time >= WATCH_MIN_RESUME && pct < limit)) s.tracked = true;
+  if (!s.tracked) return;
+  if (pct >= limit || (ev.ended && pct >= 0.5)) { finishSession(); return; }
+  saveProgress(ev.stopped || jumped);
+}
+
+function buildEntry() {
+  const s = session;
+  const e = { ...state.meta, media_type: state.type, status: 'watching', updatedAt: Date.now() };
+  if (state.type === 'tv') { e.season = s.season; e.episode = s.episode; }
+  if (s.time > 0) e.time = Math.floor(s.time);
+  if (s.duration) e.duration = Math.floor(s.duration);
+  return e;
+}
+
+function saveProgress(force = false) {
+  const s = session;
+  if (!s || s.finished || !state.meta) return;
+  const now = Date.now();
+  if (!force && now - s.lastLocal < LOCAL_EVERY) return;
+  s.lastLocal = now;
+  const uid = syncUid();
+  storeWatching(uid, watchKey(), buildEntry());
+  syncUrl();
+  const send = uid && now - s.lastRemote >= (force ? REMOTE_GAP : REMOTE_EVERY);
+  if (send || !uid) s.sentTime = s.time;
+  if (send) {
+    s.lastRemote = now;
+    sendQueued(uid, watchKey());
+  }
+}
+
+// A finished movie is removed. A finished episode moves the show on to the
+// next one that has aired, or marks it caught up.
+function finishSession() {
+  const s = session;
+  s.finished = true;
+  s.finishedAt = s.time;
+  const uid = syncUid();
+  if (state.type === 'movie') {
+    storeWatching(uid, watchKey(), null);
+  } else {
+    if (!state.meta) return;
+    const e = buildEntry();
+    delete e.time;
+    delete e.duration;
+    const next = nextAiredEpisode();
+    if (next) { e.season = next.season; e.episode = next.episode; }
+    else e.status = 'caughtup';
+    storeWatching(uid, watchKey(), e);
+  }
+  syncUrl();
+  if (uid) sendQueued(uid, watchKey());
+}
+
+function nextAiredEpisode() {
+  const next = computeNext();
+  const last = tvData?.last_episode_to_air;
+  if (!next || !last) return null;
+  const aired = next.season < last.season_number ||
+    (next.season === last.season_number && next.episode <= last.episode_number);
+  return aired ? next : null;
+}
+
+// The player moved to another episode by itself (auto-next, its own menu):
+// the page follows it without reloading the player
+function followEpisode(season, episode) {
+  clearTimeout(session.noEventsTimer);
+  const seasonChanged = season !== state.season;
+  state.season = season;
+  state.episode = episode;
+  state.startAt = 0;
+  session = newSession();
+  session.gotEvents = true;
+  if (seasonChanged) { $('season-select').value = season; populateEpisodes(true); }
+  else { $('episode-select').value = episode; updateNextBtn(); }
+  syncUrl();
+  if (state.title) updateTitleBar();
+}
+
+// Leaving or hiding the page only writes if the place has changed since the last send
+const flushProgress = () => {
+  if (session && session.tracked && session.gotEvents && session.time !== session.sentTime) saveProgress(true);
+};
+window.addEventListener('pagehide', flushProgress);
+document.addEventListener('visibilitychange', () => { if (document.hidden) flushProgress(); });
+
+// The account: Firebase only loads when there's something to send, or when this
+// browser is signed in but hasn't been told yet which account progress syncs to
+let syncLoading = null;
+
+function loadSync() {
+  return syncLoading ||= (async () => {
+    const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}`;
+    const [{ initializeApp }, a, f] = await Promise.all([
+      import(`${base}/firebase-app.js`),
+      import(`${base}/firebase-auth.js`),
+      import(`${base}/firebase-firestore.js`),
+    ]);
+    const app = initializeApp(FIREBASE_CONFIG);
+    const auth = a.getAuth(app);
+    await auth.authStateReady();
+    const user = auth.currentUser;
+    const uid = canSync(user) ? user.uid : null;
+    setSyncUid(uid);
+    return { f, db: f.getFirestore(app), uid };
+  })().catch(err => { syncLoading = null; throw err; });
+}
+
+// What can't be sent stays queued; the main page retries it
+async function sendQueued(uid, key) {
+  try {
+    const item = readJsonStore(watchQueueKey(uid))[key];
+    if (!item) return;
+    const { f, db, uid: current } = await loadSync();
+    if (current !== uid) return;
+    await f.setDoc(f.doc(db, 'users', uid), { watching: { [key]: queuedValue(item, f.deleteField) } }, { merge: true });
+    clearQueued(uid, key, item.updatedAt);
+  } catch (err) {
+    console.warn('Progress not synced yet', err);
+  }
+}
+
+// TITLE_FIELDS from a TMDB details response, which lists genres in full
+function titleMeta(data) {
+  const meta = {};
+  for (const f of TITLE_FIELDS) if (data[f] != null) meta[f] = data[f];
+  if (!meta.genre_ids && Array.isArray(data.genres)) meta.genre_ids = data.genres.map(g => g.id);
+  return meta;
+}
+
+/* ─── SERVERS ─── */
+function buildServers() {
+  const grid = $('server-grid');
+  grid.innerHTML = '';
+  SERVERS.forEach(s => {
+    const el = document.createElement('button');
+    el.className = 'server-card' + (s.id === state.server ? ' selected' : '');
+    el.dataset.id = s.id;
+    el.innerHTML = `
+      <span class="s-dot"></span>
+      <span class="s-meta">
+        <span class="s-name">${esc(s.name)}</span>
+        <span class="s-note">${esc(s.note)}</span>
+      </span>`;
+    el.addEventListener('click', () => {
+      if (s.id === state.server) return;
+      state.server = s.id;
+      document.querySelectorAll('.server-card').forEach(c => c.classList.toggle('selected', c === el));
+      loadPlayer();
+      toast(`Now streaming from ${s.name}`);
+    });
+    grid.appendChild(el);
+  });
+}
+
+/* ─── TV SEASON / EPISODE ─── */
+async function setupTv() {
+  $('tv-panel').hidden = false;
+  const seasonSel  = $('season-select');
+  const episodeSel = $('episode-select');
+
+  try {
+    tvData = await tmdb(`/tv/${state.id}`);
+    if (!tvData || (!tvData.name && !tvData.original_name)) throw new Error('not found');
+    state.title = tvData.name || tvData.original_name;
+    state.meta = titleMeta(tvData);
+    updateTitleBar();
+
+    const seasons = (tvData.seasons || []).filter(s => s.season_number > 0);
+    seasonSel.innerHTML = (seasons.length ? seasons : [{ season_number: 1, episode_count: 1 }])
+      .map(s => `<option value="${s.season_number}" data-eps="${s.episode_count}">Season ${s.season_number} · ${s.episode_count} ep</option>`)
+      .join('');
+    seasonSel.value = state.season;
+    if (!seasonSel.value) { state.season = parseInt(seasonSel.options[0].value); seasonSel.value = state.season; }
+  } catch {
+    showFatal();
+    return;
+  }
+
+  await populateEpisodes(true);
+
+  seasonSel.addEventListener('change', async () => {
+    state.season = parseInt(seasonSel.value) || 1;
+    state.episode = 1;
+    await populateEpisodes(true);
+    loadPlayer();
+  });
+  episodeSel.addEventListener('change', () => {
+    state.episode = parseInt(episodeSel.value) || 1;
+    loadPlayer();
+  });
+
+  $('nextep-btn').addEventListener('click', goNextEpisode);
+}
+
+async function populateEpisodes(setToState) {
+  const seasonSel  = $('season-select');
+  const episodeSel = $('episode-select');
+  const opt = seasonSel.options[seasonSel.selectedIndex];
+  const fallbackCount = parseInt(opt?.dataset?.eps || 24);
+
+  episodeSel.innerHTML = '<option>Loading…</option>';
+  const key = `${state.id}-${state.season}`;
+  try {
+    let data = seasonCache[key];
+    if (!data) { data = await tmdb(`/tv/${state.id}/season/${state.season}`); seasonCache[key] = data; }
+    const eps = data?.episodes || [];
+    if (!eps.length) throw new Error('no eps');
+    episodeSel.innerHTML = eps.map(ep => {
+      const d = fmtDate(ep.air_date);
+      return `<option value="${ep.episode_number}">Ep ${ep.episode_number}${d ? ' · ' + d : ''}</option>`;
+    }).join('');
+  } catch {
+    episodeSel.innerHTML = Array.from({ length: fallbackCount }, (_, i) =>
+      `<option value="${i+1}">Episode ${i+1}</option>`).join('');
+  }
+
+  if (setToState) {
+    if (![...episodeSel.options].some(o => parseInt(o.value) === state.episode)) state.episode = 1;
+    episodeSel.value = state.episode;
+  }
+  updateNextBtn();
+}
+
+function episodeCountFor(seasonNum) {
+  const cached = seasonCache[`${state.id}-${seasonNum}`];
+  if (cached?.episodes?.length) return cached.episodes.length;
+  const s = (tvData?.seasons || []).find(x => x.season_number === seasonNum);
+  return s ? s.episode_count : null;
+}
+
+function computeNext() {
+  const curCount = episodeCountFor(state.season);
+  if (curCount && state.episode < curCount) return { season: state.season, episode: state.episode + 1 };
+  const nextSeason = state.season + 1;
+  const exists = (tvData?.seasons || []).some(s => s.season_number === nextSeason);
+  if (exists) return { season: nextSeason, episode: 1 };
+  return null;
+}
+
+function updateNextBtn() {
+  const btn = $('nextep-btn');
+  const next = computeNext();
+  btn.disabled = !next;
+  btn.title = next ? `Next: S${next.season} E${next.episode}` : 'No next episode';
+}
+
+async function goNextEpisode() {
+  const next = computeNext();
+  if (!next) return;
+  const seasonChanged = next.season !== state.season;
+  state.season = next.season;
+  state.episode = next.episode;
+  if (seasonChanged) { $('season-select').value = state.season; await populateEpisodes(true); }
+  else $('episode-select').value = state.episode;
+  updateNextBtn();
+  loadPlayer();
+}
+
+/* ─── MOVIE TITLE ─── */
+async function setupMovie() {
+  try {
+    const data = await tmdb(`/movie/${state.id}`);
+    if (!data || (!data.title && !data.original_title)) throw new Error('not found');
+    state.title = data.title || data.original_title;
+    state.meta = titleMeta(data);
+    state.runtime = data.runtime;
+  } catch {
+    showFatal();
+    return;
+  }
+  updateTitleBar();
+}
+
+/* ─── UTILS ─── */
+function showFatal() {
+  $('main').innerHTML = `
+    <div class="fatal">
+      <h2>Title not found</h2>
+      <p>This title does not exist or could not be loaded.</p>
+      <a href="/">Back to TFLIX</a>
+    </div>`;
+  document.title = 'TFLIX';
+}
+function esc(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtDate(d){
+  if (!d) return '';
+  const dt = new Date(d);
+  if (isNaN(dt)) return '';
+  return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+function toast(msg){
+  const t = $('toast');
+  t.innerHTML = `<span class="s-live"></span>${esc(msg)}`;
+  t.classList.add('show');
+  clearTimeout(t._tm);
+  t._tm = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ─── NAV ─── */
+$('logo').addEventListener('click', () => { location.href = '/'; });
+$('back-btn').addEventListener('click', () => {
+  if (history.length > 1 && document.referrer.includes(location.host)) history.back();
+  else location.href = '/';
+});
+
+/* ─── HELP ─── */
+const helpIsOpen = () => $('help-backdrop').classList.contains('open');
+renderFaq($('faq-list'));
+function openHelp() {
+  collapseFaq($('faq-list'));
+  $('help-body').scrollTop = 0;
+  $('help-backdrop').classList.add('open');
+  window.__knavFocus(document.querySelector('.faq-q'));
+}
+function closeHelp() {
+  if (!helpIsOpen()) return;
+  $('help-backdrop').classList.remove('open');
+  if (document.activeElement && $('help-backdrop').contains(document.activeElement)) document.activeElement.blur();
+  window.__knavFocus($('help-btn'));
+}
+$('help-btn').addEventListener('click', openHelp);
+$('help-close').addEventListener('click', closeHelp);
+$('help-backdrop').addEventListener('click', e => { if (e.target === $('help-backdrop')) closeHelp(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeHelp(); });
+
+/* ─── INIT ─── */
+(async function init() {
+  state = readParams();
+  if (!state) {
+    $('main').innerHTML = `
+      <div class="fatal">
+        <h2>Nothing to play</h2>
+        <p>This link is missing the title information.</p>
+        <a href="/">Back to TFLIX</a>
+      </div>`;
+    document.title = 'TFLIX';
+    return;
+  }
+
+  buildServers();
+  loadPlayer();              // start streaming immediately
+  if (localStorage.getItem(SIGNED_IN_KEY) && !syncUid()) loadSync().catch(() => {});
+
+  if (state.type === 'tv') await setupTv();
+  else await setupMovie();
+})();
+
+/* ─── TV / D-PAD NAVIGATION ───
+   Same model as the main page: arrow keys + Enter (what a TV remote sends)
+   walk the page's controls — back/help buttons → season/episode →
+   next episode → server cards. Activates on the first arrow key, deactivates on mouse or
+   touch, so pointer users never see it. Back itself is handled outside the
+   page (browser/back gesture/Android app). */
+(function () {
+  let active = false;
+  let cur = null;
+
+  const vis = el => !!(el && el.getClientRects().length);
+
+  function setFocus(el, scroll = true) {
+    if (!el) return;
+    if (cur) cur.classList.remove('kf');
+    cur = el;
+    el.classList.add('kf');
+    if (el.tagName === 'SELECT' || el.tagName === 'BUTTON') el.focus({ preventScroll: true });
+    if (scroll) el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+  }
+
+  function getSections() {
+    // Help open → only its controls, top to bottom
+    if (helpIsOpen())
+      return [$('help-close'), ...document.querySelectorAll('.faq-q'), $('help-issues'), $('help-src')].map(el => ({ items: [el] }));
+    const secs = [];
+    const header = [$('back-btn'), $('help-btn')].filter(vis);
+    if (header.length) secs.push({ items: header });
+    const tv = $('tv-panel');
+    if (tv && !tv.hidden) {
+      const sels = [$('season-select'), $('episode-select')].filter(vis);
+      if (sels.length) secs.push({ items: sels });
+      const next = $('nextep-btn');
+      if (vis(next)) secs.push({ items: [next] });
+    }
+    // The player itself is a focus stop: selecting it just scrolls the video
+    // to the middle of the screen (handy on a TV). It's a cross-origin iframe,
+    // so we never send real focus into it — setFocus only adds the highlight
+    // and scrolls; Enter on it is a harmless no-op click on the wrapper.
+    const player = $('player-wrap');
+    if (vis(player)) secs.push({ items: [player] });
+    document.querySelectorAll('.server-card').forEach(c => { if (vis(c)) secs.push({ items: [c] }); });
+    return secs;
+  }
+
+  /* The help dialog moves focus into itself on open and back on close */
+  window.__knavFocus = el => { if (active && vis(el)) setFocus(el, false); };
+
+  function focusInitial() {
+    const sel = document.querySelector('.server-card.selected');
+    if (sel && vis(sel)) { setFocus(sel); return; }
+    const secs = getSections();
+    if (secs.length) setFocus(secs[0].items[0]);
+  }
+
+  function move(dx, dy) {
+    const secs = getSections();
+    if (!secs.length) return;
+    const si = secs.findIndex(s => s.items.indexOf(cur) >= 0);
+    if (si < 0) { focusInitial(); return; }
+    const sec = secs[si];
+    const ii = sec.items.indexOf(cur);
+
+    if (dx) {
+      const ni = ii + dx;
+      if (ni >= 0 && ni < sec.items.length) setFocus(sec.items[ni]);
+      return;
+    }
+    if (dy) {
+      const ns = secs[si + dy];
+      if (!ns) return;
+      setFocus(ns.items[Math.max(0, Math.min(ii, ns.items.length - 1))]);
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    const k = e.key;
+    const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+
+    if (!active) {
+      if (arrows[k]) {
+        active = true;
+        document.documentElement.classList.add('keynav');
+        if (cur && vis(cur)) setFocus(cur); else focusInitial();
+        e.preventDefault();
+      }
+      return;
+    }
+
+    if (k === 'Enter') {
+      if (!cur) { focusInitial(); return; }
+      if (cur.tagName === 'SELECT') {
+        // Older WebViews lack showPicker — there the native Enter opens it.
+        if (typeof cur.showPicker === 'function') { e.preventDefault(); try { cur.showPicker(); } catch (err) {} }
+        return;
+      }
+      e.preventDefault();
+      cur.click();
+      return;
+    }
+
+    if (arrows[k]) { e.preventDefault(); move(arrows[k][0], arrows[k][1]); }
+  });
+
+  ['mousemove', 'mousedown', 'touchstart'].forEach(ev =>
+    document.addEventListener(ev, () => {
+      if (!active) return;
+      active = false;
+      document.documentElement.classList.remove('keynav');
+    }, { passive: true }));
+})();
+</script>
+
+<!-- Cloudflare Web Analytics -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon='{"token": "4d43b4f9d71648af99c61048fe24cdd6"}'></script>
+<!-- End Cloudflare Web Analytics -->
+</body>
+</html>
