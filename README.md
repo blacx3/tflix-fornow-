@@ -8,7 +8,6 @@
 It lets users discover movies and TV shows and stream them directly within the website.
 
 🌐 Live: https://tfli123.gahhhwebs.workers.dev/
-update= tflix.stream is outdated now https://gahhhflix.gtarebornevent.workers.dev/
 
 
 ## Features
